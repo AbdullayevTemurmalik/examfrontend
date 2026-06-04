@@ -1,0 +1,307 @@
+.checkout-page {
+  padding: 80px 0;
+}
+
+.breadcrumb {
+  margin-bottom: 80px;
+  color: #7d7d7d;
+  font-size: 14px;
+}
+
+.breadcrumb span {
+  color: var(--text-main);
+}
+
+.checkout-wrapper {
+  display: flex;
+  justify-content: space-between;
+  gap: 100px;
+}
+
+.billing-section {
+  flex: 1;
+}
+
+.billing-section h1 {
+  font-size: 36px;
+  margin-bottom: 48px;
+  font-weight: 500;
+}
+
+.billing-form {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-field label {
+  color: #7d7d7d;
+  font-size: 16px;
+}
+
+.input-field input {
+  background-color: var(--bg-secondary);
+  color: var(--text-main);
+  border: none;
+  padding: 13px;
+  border-radius: 4px;
+  outline: none;
+}
+
+.save-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.save-info input {
+  appearance: none;
+  -webkit-appearance: none;
+  min-width: 24px;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  background-color: transparent;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.save-info input:checked {
+  background-color: #db4444;
+  border-color: #db4444;
+}
+
+.save-info input:checked::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 8px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.save-info label {
+  color: var(--text-main);
+  font-size: 15px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.order-summary-section {
+  width: 420px;
+}
+
+.summary-product {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.prod-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.prod-info img {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+}
+
+.calculation-box hr {
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.calc-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 0;
+}
+
+.total-amount {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.payment-options {
+  margin: 32px 0;
+}
+
+.pay-method {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.radio-label input {
+  width: 20px;
+  height: 20px;
+  accent-color: #db4444;
+}
+
+.payment-logos {
+  display: flex;
+  gap: 8px;
+}
+
+.payment-logos img {
+  height: 18px;
+}
+
+.coupon-area {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.coupon-area input {
+  flex: 1;
+  height: 56px;
+  box-sizing: border-box;
+  padding: 0 16px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-main);
+  border-radius: 4px;
+  outline: none;
+}
+
+.place-order-btn {
+  width: 190px;
+  height: 56px;
+  background-color: #db4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.place-order-btn:hover {
+  background-color: #e04f4f;
+}
+
+@media only screen and (max-width: 1100px) {
+  .checkout-wrapper {
+    gap: 40px;
+    padding: 0 20px;
+  }
+
+  .order-summary-section {
+    width: 350px;
+  }
+}
+
+@media only screen and (max-width: 900px) {
+  .checkout-page {
+    padding: 40px 0;
+  }
+
+  .breadcrumb {
+    margin-bottom: 40px;
+    padding: 0 20px;
+  }
+
+  .checkout-wrapper {
+    flex-direction: column;
+    gap: 60px;
+  }
+
+  .billing-section {
+    order: 2;
+    padding: 0 20px;
+  }
+
+  .order-summary-section {
+    order: 1;
+    width: 100%;
+    margin-bottom: 20px;
+    background-color: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 8px;
+  }
+
+  .billing-section h1 {
+    font-size: 28px;
+    margin-bottom: 30px;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .checkout-page {
+    padding: 20px 0;
+  }
+
+  .billing-form {
+    gap: 20px;
+  }
+
+  .coupon-area {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .coupon-area input,
+  .place-order-btn {
+    width: 100%;
+  }
+
+  .summary-product {
+    margin-bottom: 20px;
+  }
+
+  .prod-info {
+    gap: 10px;
+  }
+
+  .prod-info img {
+    width: 45px;
+    height: 45px;
+  }
+
+  .payment-logos {
+    display: none;
+  }
+
+  .pay-method {
+    justify-content: flex-start;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .billing-section h1 {
+    font-size: 24px;
+  }
+
+  .input-field label {
+    font-size: 14px;
+  }
+
+  .total-amount {
+    font-size: 16px;
+  }
+}
