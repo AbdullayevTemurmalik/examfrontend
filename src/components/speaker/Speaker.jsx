@@ -1,25 +1,27 @@
 import React from "react";
 import "./Speaker.css";
-import products from "../../mock";
 import { Heart, Eye, Star, ShoppingCart } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { addLike, deleteLike } from "../../redux/likeSlice";
 import { addToBasket } from "../../redux/basketSlice";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import api from "../../api/axios";
 import Speakerimg1 from "../../assets/speaker.png";
-import Speakerimg2 from "../../assets/Speakerimg2.png";
-import Speakerimg33 from "../../assets/Speakerimg3.png";
-import Speakerimg3 from "../../assets/Speakerwomanimg.png";
-import Speakerimg4 from "../../assets/Speakerimg4.png";
 
 const Speaker = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const wishlistItems = useSelector((state) => state.like.value);
   const cartItems = useSelector((state) => state.basket.value);
+  const [newsList, setNewsList] = useState([]);
+  const [exploreItems, setExploreItems] = useState([]);
 
-  const exploreItems = products.slice(8, 16);
+  useEffect(() => {
+    api.get("/news/getNews").then(res => setNewsList(res.data)).catch(err => console.log(err));
+    api.get("/products/getProducts").then(res => setExploreItems(res.data)).catch(err => console.log(err));
+  }, []);
 
   const handleToggleLike = (item) => {
     const isExist = wishlistItems.some((liked) => liked.id === item.id);
@@ -77,7 +79,7 @@ const Speaker = () => {
                   <Link to={`/product/${item.id}`}>
                     <img
                       src={item.image}
-                      alt={t(item.nameKey)}
+                      alt={item.description || "Mahsulot"}
                       className="product-image"
                     />
                   </Link>
@@ -104,7 +106,7 @@ const Speaker = () => {
                   </button>
                 </div>
                 <div className="card-bottom">
-                  <h3>{t(item.nameKey)}</h3>
+                  <h3>{item.description || "Mahsulot"}</h3>
                   <div className="price-row">
                     <span className="current-price">${item.price}</span>
                     <div className="rating-wrap">
@@ -137,37 +139,12 @@ const Speaker = () => {
         <div className="explore-header">
           <h2>{t("new_arrival")}</h2>
         </div>
-        <div className="new-arrival-grid">
-          <div className="grid-item ps5-item">
-            <img src={Speakerimg2} alt="PS5" />
-            <div className="grid-content">
-              <h3>PlayStation 5</h3>
-              <p>{t("ps5_text")}</p>
-              <Link to="/shop">{t("shop_now")}</Link>
+        <div className="new-arrival-grid" style={{display: 'flex', gap: '20px', flexWrap: 'wrap'}}>
+          {newsList.map((news) => (
+            <div key={news.id} className="grid-item" style={{position: 'relative', width: 'calc(50% - 10px)', height: '280px', borderRadius: '4px', overflow: 'hidden', background: '#000'}}>
+              <img src={news.url} alt="News" style={{width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8}} />
             </div>
-          </div>
-          <div className="grid-item woman-item">
-            <img src={Speakerimg3} alt="Woman" />
-            <div className="grid-content">
-              <h3>Women's Collections</h3>
-              <p>{t("woman_text")}</p>
-              <Link to="/shop">{t("shop_now")}</Link>
-            </div>
-          </div>
-          <div className="grid-item speakers-item">
-            <img src={Speakerimg33} alt="Speakers" />
-            <div className="grid-content">
-              <h3>{t("categories")}</h3>
-              <Link to="/shop">{t("shop_now")}</Link>
-            </div>
-          </div>
-          <div className="grid-item perfume-item">
-            <img src={Speakerimg4} alt="Perfume" />
-            <div className="grid-content">
-              <h3>Perfume</h3>
-              <Link to="/shop">{t("shop_now")}</Link>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
     </main>

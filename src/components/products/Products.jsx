@@ -1,27 +1,28 @@
 import "./Products.css";
-import products from "../../mock";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Heart, Eye, ShoppingCart } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { addLike, deleteLike } from "../../redux/likeSlice";
 import { addToBasket } from "../../redux/basketSlice";
 import { Link } from "react-router-dom";
+import api from "../../api/axios";
 
 const Products = () => {
   const { t } = useTranslation();
   const [state, setState] = useState(true);
   const dispatch = useDispatch();
-  const category = useSelector((state) => state.filter.value);
-  const wishlistItems = useSelector((state) => state.like.value);
+  const category = useSelector((state) => state.filter?.value);
+  const wishlistItems = useSelector((state) => state.like?.value || []);
+  const [items, setItems] = useState([]);
 
-  const items = products.slice(4, 8);
-  const selectedItems = state ? items : products;
+  useEffect(() => {
+    api.get("/products/getProducts").then(res => setItems(res.data)).catch(err => console.log(err));
+  }, []);
 
-  const allItems =
-    category === "all" || !category
-      ? selectedItems
-      : selectedItems.filter((item) => item.category === category);
+  const filteredItems = category ? items.filter(item => item.category_id.toString() === category.toString()) : items;
+  const selectedItems = state ? filteredItems.slice(0, 4) : filteredItems;
+  const allItems = selectedItems;
 
   const handleToggleLike = (item) => {
     const isExist = wishlistItems.some((liked) => liked.id === item.id);
@@ -55,7 +56,7 @@ const Products = () => {
                   <img
                     className="product-image"
                     src={item.image}
-                    alt={t(item.nameKey)}
+                    alt={item.description || "Mahsulot"}
                   />
                 </Link>
                 <div className="card-icon-btn-wrap">
@@ -88,7 +89,7 @@ const Products = () => {
                   to={`/product/${item.id}`}
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  <h3>{t(item.nameKey)}</h3>
+                  <h3>{item.description || "Mahsulot"}</h3>
                 </Link>
                 <div className="item-price">
                   <p>${item.price}</p>

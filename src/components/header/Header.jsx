@@ -14,9 +14,11 @@ import {
   ChevronDown,
   Menu,
   X,
+  Shield,
 } from "lucide-react";
-import products from "../../mock";
+import api from "../../api/axios";
 import "./Header.css";
+import Swal from "sweetalert2";
 
 const Header = () => {
   const { t, i18n } = useTranslation();
@@ -33,6 +35,11 @@ const Header = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    api.get("/products/getProducts").then(res => setProducts(res.data)).catch(console.error);
+  }, []);
 
   const languages = [
     { code: "en", label: "English" },
@@ -56,7 +63,7 @@ const Header = () => {
       setFilteredProducts([]);
     } else {
       const results = products.filter((p) => {
-        const translatedName = t(p.nameKey).toLowerCase();
+        const translatedName = (p.description || "Mahsulot").toLowerCase();
         return translatedName.includes(searchTerm.toLowerCase());
       });
       setFilteredProducts(results.slice(0, 5));
@@ -73,6 +80,39 @@ const Header = () => {
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
     setIsLangOpen(false);
+  };
+
+  const handleAdminAccess = () => {
+    Swal.fire({
+      title: 'Admin Access',
+      html:
+        `<input id="swal-input1" class="swal2-input" placeholder="${t("username_placeholder", "Username")}">` +
+        `<input id="swal-input2" class="swal2-input" type="password" placeholder="${t("password_placeholder", "Password")}">`,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Login',
+      cancelButtonText: t("cancel", "Cancel"),
+      customClass: { popup: 'small-confirm-modal' },
+      preConfirm: () => {
+        const login = document.getElementById('swal-input1').value;
+        const password = document.getElementById('swal-input2').value;
+        if (!login || !password) {
+          Swal.showValidationMessage(t("enter_credentials", "Please enter username and password"));
+        }
+        return { login, password };
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        if (result.value.login === "admin" && result.value.password === "admin") {
+          localStorage.setItem("isLoggedIn", "true");
+          localStorage.setItem("role", "admin");
+          Swal.fire({ icon: 'success', title: t("welcome_admin", "Xush kelibsiz, Admin!"), timer: 1500, showConfirmButton: false });
+          navigate("/admin");
+        } else {
+          Swal.fire({ icon: 'error', title: t("error", "Xato!"), text: t("invalid_credentials", "Login yoki parol noto'g'ri") });
+        }
+      }
+    });
   };
 
   return (
@@ -197,7 +237,7 @@ const Header = () => {
                         <img src={product.image} alt={t(product.nameKey)} />
                         <div className="search-item-info">
                           <span className="search-item-name">
-                            {t(product.nameKey)}
+                            {product.description || "Mahsulot"}
                           </span>
                           <span className="search-item-price">
                             ${product.price}
@@ -225,6 +265,10 @@ const Header = () => {
                   <span className="badge">{cartItems.length}</span>
                 )}
               </Link>
+
+              <div className="icon-badge-wrapper" onClick={handleAdminAccess} style={{cursor: "pointer"}}>
+                <Shield size={24} />
+              </div>
 
               {isLoggedIn && (
                 <div className="user-dropdown-container">

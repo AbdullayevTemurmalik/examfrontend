@@ -4,52 +4,37 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { Autoplay, Pagination } from "swiper/modules";
 import { ChevronRight, ArrowRight, Apple } from "lucide-react";
-import HeroBanner from "../../assets/Heroimg.png";
+import { useState, useEffect } from "react";
+import api from "../../api/axios";
+import { useDispatch } from "react-redux";
+import { name as setCategoryFilter } from "../../redux/filterSlice";
 
 const Hero = () => {
-  const categories = [
-    { name: "Woman’s Fashion", hasSub: true },
-    { name: "Men’s Fashion", hasSub: true },
-    { name: "Electronics", hasSub: false },
-    { name: "Home & Lifestyle", hasSub: false },
-    { name: "Medicine", hasSub: false },
-    { name: "Sports & Outdoor", hasSub: false },
-    { name: "Baby’s & Toys", hasSub: false },
-    { name: "Groceries & Pets", hasSub: false },
-    { name: "Health & Beauty", hasSub: false },
-  ];
+  const dispatch = useDispatch();
+  const [categories, setCategories] = useState([]);
+  const [swipers, setSwipers] = useState([]);
 
-  const slideContent = (
-    <div className="slide-inner">
-      <div className="slide-text-content">
-        <div className="apple-brand">
-          <Apple size={40} fill="white" />
-          <span>iPhone 14 Series</span>
-        </div>
-        <h2>
-          Up to 10% <br /> off Voucher
-        </h2>
-        <a href="#" className="shop-now-link">
-          <span>Shop Now</span>
-          <ArrowRight size={20} />
-        </a>
-      </div>
-      <div className="slide-image-content">
-        <img src={HeroBanner} alt="iPhone 14" />
-      </div>
-    </div>
-  );
+  useEffect(() => {
+    api.get("/categories/getCategories").then(res => setCategories(res.data)).catch(err => console.log(err));
+    api.get("/swiper/getSwipers").then(res => setSwipers(res.data)).catch(err => console.log(err));
+  }, []);
 
   return (
     <section className="container hero-wrap">
       <aside className="products-category-menu">
         <nav>
           <ul className="category-menu-list">
-            {categories.map((item, index) => (
-              <li key={index}>
-                <a href="#">
+            <li key="all">
+              <a href="#" onClick={(e) => { e.preventDefault(); dispatch(setCategoryFilter("")); }}>
+                Barcha mahsulotlar
+                <ChevronRight size={16} />
+              </a>
+            </li>
+            {categories.map((item) => (
+              <li key={item.id}>
+                <a href="#" onClick={(e) => { e.preventDefault(); dispatch(setCategoryFilter(item.id.toString())); }}>
                   {item.name}
-                  {item.hasSub && <ChevronRight size={16} />}
+                  <ChevronRight size={16} />
                 </a>
               </li>
             ))}
@@ -66,8 +51,12 @@ const Hero = () => {
           modules={[Autoplay, Pagination]}
           className="mySwiper"
         >
-          {[...Array(5)].map((_, i) => (
-            <SwiperSlide key={i}>{slideContent}</SwiperSlide>
+          {swipers.map((s) => (
+            <SwiperSlide key={s.id}>
+              <div className="slide-inner" style={{width: "100%", height: "100%"}}>
+                <img src={s.url} alt="Banner" style={{width: "100%", height: "100%", objectFit: "cover"}} />
+              </div>
+            </SwiperSlide>
           ))}
         </Swiper>
       </div>

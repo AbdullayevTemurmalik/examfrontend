@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./Discount.css";
-import products from "../../mock";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
@@ -11,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { addLike, deleteLike } from "../../redux/likeSlice";
 import { addToBasket } from "../../redux/basketSlice";
 import { Link } from "react-router-dom";
+import api from "../../api/axios";
 
 const Discount = () => {
   const { t } = useTranslation();
@@ -19,7 +19,12 @@ const Discount = () => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
-  const baseItems = products.filter((item) => item.id >= 1 && item.id <= 4);
+  const [products, setProducts] = useState([]);
+  useEffect(() => {
+    api.get("/products/getProducts").then(res => setProducts(res.data)).catch(console.error);
+  }, []);
+
+  const baseItems = products.slice(0, 4);
   const items = [...baseItems, ...baseItems];
 
   const [timeLeft, setTimeLeft] = useState({
@@ -115,7 +120,7 @@ const Discount = () => {
           autoplay={{ delay: 2000, disableOnInteraction: false }}
           slidesPerView={4}
           spaceBetween={30}
-          loop={true}
+          loop={items.length >= 4}
           breakpoints={{
             0: { slidesPerView: 1.3, spaceBetween: 15 },
             480: { slidesPerView: 2.2, spaceBetween: 20 },
@@ -149,7 +154,7 @@ const Discount = () => {
                         <Eye size={20} color="currentColor" />
                       </Link>
                     </div>
-                    <img src={item.image} alt={t(item.nameKey)} />
+                    <img src={item.image} alt={item.description || "Mahsulot"} />
                     <button
                       className="add-to-cart-btn"
                       onClick={() =>
@@ -160,7 +165,7 @@ const Discount = () => {
                     </button>
                   </div>
                   <div className="card-bottom">
-                    <h3>{t(item.nameKey)}</h3>
+                    <h3>{item.description || "Mahsulot"}</h3>
                     <div className="item-price">
                       <p className="new-price">${item.price}</p>
                       {item.discountPrice && (

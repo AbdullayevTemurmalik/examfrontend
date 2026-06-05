@@ -381,9 +381,8 @@
   z-index: 2000;
 }
 
-@media (max-width: 900px) {
-  .header-navigation,
-  .desktop-search {
+@media (max-width: 767px) {
+  .header-navigation {
     display: none;
   }
   .mobile-menu-trigger {

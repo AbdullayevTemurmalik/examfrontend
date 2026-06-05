@@ -15,6 +15,14 @@ import Contact from "./page/contact/Contact";
 import Checkout from "./components/checkout/Checkout";
 import { HelmetProvider } from "react-helmet-async";
 import MyAccount from "./page/account/MyAccount";
+import Login from "./page/registration/Login";
+import AdminLayout from "./page/admin/AdminLayout";
+import AdminDashboard from "./page/admin/AdminDashboard";
+import AdminSwiper from "./page/admin/AdminSwiper";
+import AdminNews from "./page/admin/AdminNews";
+import AdminCards from "./page/admin/AdminCards";
+import AdminUsers from "./page/admin/AdminUsers";
+import AdminCategories from "./page/admin/AdminCategories";
 
 export const sendState = createContext();
 export const ThemeContext = createContext();
@@ -47,7 +55,8 @@ function App() {
   useEffect(() => {
     const showRegistration = () => {
       const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-      if (!isLoggedIn && data.length < 1 && location.pathname !== "/register") {
+      const isAdminRoute = location.pathname.startsWith("/admin");
+      if (!isLoggedIn && data.length < 1 && location.pathname !== "/register" && location.pathname !== "/login" && !isAdminRoute) {
         navigate("/register");
       }
     };
@@ -62,16 +71,19 @@ function App() {
     };
   }, [data, location.pathname, navigate]);
 
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
   return (
     <>
       <HelmetProvider>
         <ThemeContext.Provider value={{ isDarkTheme, toggleTheme }}>
           <sendState.Provider value={{ state, setState }}>
             <div className="main-wrapper">
-              <Header />
+              {!isAdminRoute && <Header />}
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/register" element={<Registration />} />
+                <Route path="/login" element={<Login />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/like" element={<Heart />} />
                 <Route path="/product/:id" element={<SinglePage />} />
@@ -80,8 +92,17 @@ function App() {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/account" element={<MyAccount />} />
                 <Route path="*" element={<NotFound />} />
+                
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="swiper" element={<AdminSwiper />} />
+                  <Route path="news" element={<AdminNews />} />
+                  <Route path="cards" element={<AdminCards />} />
+                  <Route path="categories" element={<AdminCategories />} />
+                  <Route path="users" element={<AdminUsers />} />
+                </Route>
               </Routes>
-              <Footer />
+              {!isAdminRoute && <Footer />}
             </div>
           </sendState.Provider>
         </ThemeContext.Provider>

@@ -47,23 +47,32 @@
   gap: 40px;
 }
 
-.registration-right input {
-  border: 1px solid var(--border-color);
-  background-color: var(--bg-secondary);
+.registration-right input,
+.registration-right select {
+  border: 1px solid var(--border-color, #e2e8f0);
+  background-color: var(--bg-secondary, #f8fafc);
   padding: 16px 20px;
   border-radius: 12px;
   font-size: 16px;
   outline: none;
   transition: all 0.3s ease;
-  color: var(--text-main);
+  color: var(--text-main, #0f172a);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02) inset;
+  box-sizing: border-box;
+  height: 52px;
+}
+
+.flex-input {
+  flex: 1;
+  width: 100%;
 }
 
 .registration-right input::placeholder {
   color: #94a3b8;
 }
 
-.registration-right input:focus {
+.registration-right input:focus,
+.registration-right select:focus {
   border-color: #db4444;
   background-color: #ffffff;
   box-shadow: 0 0 0 4px rgba(219, 68, 68, 0.1);
@@ -192,4 +201,45 @@
   .registration-left img {
     display: none;
   }
+}
+
+
+body.dark-mode .registration-right input,
+body.dark-mode .registration-right select {
+  background-color: #1a1a1a;
+  color: #fff;
+  border-color: #333;
+  caret-color: #fff;
+}
+
+body.dark-mode .registration-right input::placeholder {
+  color: #888;
+}
+
+body.dark-mode .registration-right input:focus,
+body.dark-mode .registration-right select:focus {
+  background-color: #222;
+  border-color: #db4444;
+}
+
+body.dark-mode .google-btn {
+  background-color: #1a1a1a;
+  color: #fff;
+  border-color: #333;
+}
+
+body.dark-mode .google-btn:hover {
+  background-color: #2a2a2a;
+  border-color: #444;
+}
+
+body.dark-mode .password-input-wrap span {
+  color: #888 !important;
+}
+body.dark-mode .registration-right select option {
+  background-color: #1a1a1a;
+  color: #fff;
+}
+body.dark-mode .password-input-wrap span:hover {
+  color: #fff !important;
 }

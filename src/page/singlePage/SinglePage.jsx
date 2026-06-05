@@ -1,12 +1,12 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import "./SinglePage.css";
-import products from "../../mock";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Truck, RotateCcw, Minus, Plus, Heart, Star } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { addToBasket } from "../../redux/basketSlice";
 import { addLike, deleteLike } from "../../redux/likeSlice";
+import api from "../../api/axios";
 
 const SinglePage = () => {
   const { t } = useTranslation();
@@ -14,11 +14,15 @@ const SinglePage = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const [quantity, setQuantity] = useState(1);
+  const [product, setProduct] = useState(null);
+
+  useEffect(() => {
+    api.get(`/products/getProduct/${id}`).then(res => setProduct(res.data)).catch(console.error);
+  }, [id]);
 
   const wishlistItems = useSelector((state) => state.like.value);
-  const product = products.find((item) => item.id == id);
 
-  if (!product) return <div className="container">{t("not_found")}</div>;
+  if (!product) return <div className="container" style={{padding: "100px 0", textAlign: "center"}}>{t("not_found")} / Loading...</div>;
 
   const isLiked = wishlistItems.some((liked) => liked.id === product.id);
 
@@ -41,8 +45,8 @@ const SinglePage = () => {
 
       <nav className="breadcrumb">
         <Link to="/account">{t("account")}</Link> /{" "}
-        <Link to="/gaming">{t("gaming")}</Link> /{" "}
-        <span>{t(product.nameKey)}</span>
+        <Link to="/">{t("gaming")}</Link> /{" "}
+        <span>{product.description || "Mahsulot"}</span>
       </nav>
 
       <div className="product-main">
@@ -55,11 +59,11 @@ const SinglePage = () => {
         </div>
 
         <div className="product-image-main">
-          <img src={product.image} alt={t(product.nameKey)} />
+          <img src={product.image} alt={product.description || "Mahsulot"} />
         </div>
 
         <div className="product-details">
-          <h2>{t(product.nameKey)}</h2>
+          <h2>{product.description || "Mahsulot"}</h2>
           <div className="product-meta">
             <div className="stars-row">
               {[...Array(5)].map((_, i) => (
@@ -78,7 +82,7 @@ const SinglePage = () => {
 
           <div className="price-tag">${product.price.toFixed(2)}</div>
 
-          <p className="description">{t(product.descKey)}</p>
+          <p className="description">{product.description || "Zo'r sifatdagi mahsulot. Kafolatlangan!"}</p>
 
           <hr />
 

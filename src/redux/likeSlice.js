@@ -5,7 +5,7 @@ const initialState = {
   value: savedLike ? JSON.parse(savedLike) : [],
 };
 export const likeSlice = createSlice({
-  name: "counter",
+  name: "like",
   initialState,
   reducers: {
     addLike: (state, action) => {
