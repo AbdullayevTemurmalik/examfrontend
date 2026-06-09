@@ -18,20 +18,36 @@ const Speaker = () => {
   const [newsList, setNewsList] = useState([]);
   const [exploreItems, setExploreItems] = useState([]);
 
+  const categoryFilter = useSelector((state) => state.filter?.value);
+
   useEffect(() => {
     api.get("/news/getNews").then(res => setNewsList(res.data)).catch(err => console.log(err));
     api.get("/products/getProducts").then(res => setExploreItems(res.data)).catch(err => console.log(err));
   }, []);
 
-  const handleToggleLike = (item) => {
+  const filteredExploreItems = categoryFilter ? exploreItems.filter(item => item.category_id && item.category_id.toString() === categoryFilter.toString()) : exploreItems;
+
+  const handleToggleLike = async (item) => {
+    const userStr = localStorage.getItem("userData");
+    const user = userStr ? JSON.parse(userStr) : null;
     const isExist = wishlistItems.some((liked) => liked.id === item.id);
-    if (isExist) dispatch(deleteLike(item.id));
-    else dispatch(addLike(item));
+    if (isExist) {
+      dispatch(deleteLike(item.id));
+      if (user) await api.delete(`/likes/deleteLike/0?user_id=${user.id}&product_id=${item.id}`).catch(console.error);
+    } else {
+      dispatch(addLike(item));
+      if (user) await api.post("/likes/createLike", { user_id: user.id, product_id: item.id }).catch(console.error);
+    }
   };
 
-  const handleAddToCart = (item) => {
+  const handleAddToCart = async (item) => {
+    const userStr = localStorage.getItem("userData");
+    const user = userStr ? JSON.parse(userStr) : null;
     const isExist = cartItems.some((cartItem) => cartItem.id === item.id);
-    if (!isExist) dispatch(addToBasket({ ...item, quantity: 1 }));
+    if (!isExist) {
+      dispatch(addToBasket({ ...item, quantity: 1 }));
+      if (user) await api.post("/carts/createCart", { user_id: user.id, card_id: item.id }).catch(console.error);
+    }
   };
 
   return (
@@ -70,7 +86,7 @@ const Speaker = () => {
           <h2>{t("explore_products")}</h2>
         </div>
         <div className="explore-grid">
-          {exploreItems.map((item) => {
+          {filteredExploreItems.map((item) => {
             const isLiked = wishlistItems.some((liked) => liked.id === item.id);
             return (
               <div key={item.id} className="card">
@@ -143,6 +159,11 @@ const Speaker = () => {
           {newsList.map((news) => (
             <div key={news.id} className="grid-item" style={{position: 'relative', width: 'calc(50% - 10px)', height: '280px', borderRadius: '4px', overflow: 'hidden', background: '#000'}}>
               <img src={news.url} alt="News" style={{width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8}} />
+              {news.description && (
+                <div style={{position: 'absolute', bottom: '20px', left: '20px', color: '#fff', fontSize: '18px', fontWeight: 'bold', zIndex: 1}}>
+                  {news.description}
+                </div>
+              )}
             </div>
           ))}
         </div>

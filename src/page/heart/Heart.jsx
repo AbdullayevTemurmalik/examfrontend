@@ -1,4 +1,5 @@
 import { Trash2, ShoppingCart } from "lucide-react";
+import api from "../../api/axios";
 import "./Heart.css";
 import { useSelector, useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -10,6 +11,17 @@ const Heart = () => {
   const { t } = useTranslation();
   const likedItems = useSelector((item) => item.like.value);
   const dispatch = useDispatch();
+
+  const handleRemoveLike = async (id) => {
+    dispatch(deleteLike(id));
+    const userStr = localStorage.getItem("userData");
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      try {
+        await api.delete(`/likes/deleteLike/0?user_id=${user.id}&product_id=${id}`);
+      } catch (e) { console.error(e); }
+    }
+  };
 
   if (likedItems.length === 0) {
     return (
@@ -56,7 +68,7 @@ const Heart = () => {
               <div className="card-actions">
                 <button
                   className="icon-btn"
-                  onClick={() => dispatch(deleteLike(item.id))}
+                  onClick={() => handleRemoveLike(item.id)}
                 >
                   <Trash2 size={20} />
                 </button>

@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setBasket } from "../../redux/basketSlice";
+import { setLikes } from "../../redux/likeSlice";
 import { useTranslation } from "react-i18next";
 import {
   ShoppingCart,
@@ -24,6 +26,7 @@ const Header = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
 
   const cartItems = useSelector((state) => state.basket?.value || []);
   const wishlistItems = useSelector((state) => state.like?.value || []);
@@ -73,6 +76,10 @@ const Header = () => {
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("userData");
+    localStorage.removeItem("basket");
+    localStorage.removeItem("like");
+    dispatch(setBasket([]));
+    dispatch(setLikes([]));
     setIsLoggedIn(false);
     navigate("/register");
   };

@@ -1,6 +1,9 @@
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import { createContext, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import api from "./api/axios";
+import { setBasket } from "./redux/basketSlice";
+import { setLikes } from "./redux/likeSlice";
 import "./App.css";
 import Header from "./components/header/Header";
 import Footer from "./components/footer/Footer";
@@ -52,6 +55,8 @@ function App() {
     }
   }, [isDarkTheme]);
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
     const showRegistration = () => {
       const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
@@ -70,6 +75,28 @@ function App() {
       window.removeEventListener("mousemove", showRegistration);
     };
   }, [data, location.pathname, navigate]);
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      const userStr = localStorage.getItem("userData");
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        try {
+          const cartsRes = await api.get(`/carts/getCarts?user_id=${user.id}`);
+          if (cartsRes.data && Array.isArray(cartsRes.data)) {
+            const mappedCarts = cartsRes.data.filter(c => c.card).map(c => ({...c.card, quantity: 1}));
+            dispatch(setBasket(mappedCarts));
+          }
+          const likesRes = await api.get(`/likes/getLikes?user_id=${user.id}`);
+          if (likesRes.data && Array.isArray(likesRes.data)) {
+            const mappedLikes = likesRes.data.filter(l => l.card).map(l => l.card);
+            dispatch(setLikes(mappedLikes));
+          }
+        } catch(e) {}
+      }
+    };
+    loadUserData();
+  }, [dispatch]);
 
   const isAdminRoute = location.pathname.startsWith("/admin");
 

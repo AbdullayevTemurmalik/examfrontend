@@ -6,6 +6,7 @@ import {
 } from "../../redux/basketSlice";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import api from "../../api/axios";
 import { X, ChevronUp, ChevronDown, ShoppingBag } from "lucide-react";
 import "./Basket.css";
 
@@ -14,6 +15,16 @@ const Basket = () => {
   const arr = useSelector((item) => item.basket.value);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const handleDeleteItem = async (id) => {
+    dispatch(deleteItem(id));
+    const userStr = localStorage.getItem("userData");
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      try {
+        await api.delete(`/carts/deleteCart/0?user_id=${user.id}&card_id=${id}`);
+      } catch (e) { console.error(e); }
+    }
+  };
   const total = arr.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   if (arr.length === 0) {
@@ -57,7 +68,7 @@ const Basket = () => {
                 <div className="img-container">
                   <div
                     className="remove-btn"
-                    onClick={() => dispatch(deleteItem(item.id))}
+                    onClick={() => handleDeleteItem(item.id)}
                   >
                     <X size={12} />
                   </div>

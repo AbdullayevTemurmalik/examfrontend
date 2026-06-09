@@ -1,6 +1,9 @@
 import "./Categories.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
+import api from "../../api/axios";
+import { name as setCategoryFilter } from "../../redux/filterSlice";
 import {
   Smartphone,
   Monitor,
@@ -12,16 +15,17 @@ import {
 
 const Categories = () => {
   const { t } = useTranslation();
-  const [activeCategory, setActiveCategory] = useState("cat_camera");
+  const dispatch = useDispatch();
+  const activeCategory = useSelector((state) => state.filter?.value);
+  const [categories, setCategories] = useState([]);
 
-  const categories = [
-    { key: "cat_phones", icon: <Smartphone size={40} strokeWidth={1.5} /> },
-    { key: "cat_computers", icon: <Monitor size={40} strokeWidth={1.5} /> },
-    { key: "cat_smartwatch", icon: <Watch size={40} strokeWidth={1.5} /> },
-    { key: "cat_camera", icon: <Camera size={40} strokeWidth={1.5} /> },
-    { key: "cat_headphones", icon: <Headphones size={40} strokeWidth={1.5} /> },
-    { key: "cat_gaming", icon: <Gamepad2 size={40} strokeWidth={1.5} /> },
-  ];
+  useEffect(() => {
+    api.get("/categories/getCategories").then(res => setCategories(res.data)).catch(console.error);
+  }, []);
+
+  const handleCategoryClick = (id) => {
+    dispatch(setCategoryFilter(id === activeCategory ? "" : id.toString()));
+  };
 
   return (
     <div className="container categories-section">
@@ -33,14 +37,14 @@ const Categories = () => {
         <h3>{t("browse_category")}</h3>
       </div>
       <div className="categories-grid">
-        {categories.map((item, index) => (
+        {categories.map((item) => (
           <div
-            key={index}
-            className={`category-box ${activeCategory === item.key ? "active" : ""}`}
-            onClick={() => setActiveCategory(item.key)}
+            key={item.id}
+            className={`category-box ${activeCategory === item.id.toString() ? "active" : ""}`}
+            onClick={() => handleCategoryClick(item.id)}
           >
-            <span className="category-icon">{item.icon}</span>
-            <p>{t(item.key)}</p>
+            <span className="category-icon"><Monitor size={40} strokeWidth={1.5} /></span>
+            <p>{item.name}</p>
           </div>
         ))}
       </div>

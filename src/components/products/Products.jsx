@@ -20,16 +20,39 @@ const Products = () => {
     api.get("/products/getProducts").then(res => setItems(res.data)).catch(err => console.log(err));
   }, []);
 
-  const filteredItems = category ? items.filter(item => item.category_id.toString() === category.toString()) : items;
+  const filteredItems = category ? items.filter(item => item.category_id && item.category_id.toString() === category.toString()) : items;
   const selectedItems = state ? filteredItems.slice(0, 4) : filteredItems;
   const allItems = selectedItems;
 
-  const handleToggleLike = (item) => {
+  const handleToggleLike = async (item) => {
+    const userStr = localStorage.getItem("userData");
+    const user = userStr ? JSON.parse(userStr) : null;
     const isExist = wishlistItems.some((liked) => liked.id === item.id);
     if (isExist) {
       dispatch(deleteLike(item.id));
+      if (user) {
+        try {
+          await api.delete(`/likes/deleteLike/0?user_id=${user.id}&product_id=${item.id}`);
+        } catch (e) { console.error(e); }
+      }
     } else {
       dispatch(addLike(item));
+      if (user) {
+        try {
+          await api.post("/likes/createLike", { user_id: user.id, product_id: item.id });
+        } catch (e) { console.error(e); }
+      }
+    }
+  };
+
+  const handleAddToCart = async (item) => {
+    const userStr = localStorage.getItem("userData");
+    const user = userStr ? JSON.parse(userStr) : null;
+    dispatch(addToBasket({ ...item, quantity: 1 }));
+    if (user) {
+      try {
+        await api.post("/carts/createCart", { user_id: user.id, card_id: item.id });
+      } catch (e) { console.error(e); }
     }
   };
 
@@ -76,9 +99,7 @@ const Products = () => {
                 </div>
                 <button
                   className="add-to-cart-btn"
-                  onClick={() =>
-                    dispatch(addToBasket({ ...item, quantity: 1 }))
-                  }
+                  onClick={() => handleAddToCart(item)}
                 >
                   <ShoppingCart size={18} style={{ marginRight: "8px" }} />
                   {t("add_to_cart")}

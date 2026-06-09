@@ -5,11 +5,15 @@ import { useNavigate, Link } from "react-router-dom";
 import api from "../../api/axios";
 import Swal from "sweetalert2";
 import { Eye, EyeOff } from "lucide-react";
+import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
+import { setBasket } from "../../redux/basketSlice";
+import { setLikes } from "../../redux/likeSlice";
 
 const Login = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -29,6 +33,17 @@ const Login = () => {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("userData", JSON.stringify(res.data.user));
       localStorage.setItem("role", "user");
+
+      try {
+        const cartsRes = await api.get(`/carts/getCarts?user_id=${res.data.user.id}`);
+        if (cartsRes.data && Array.isArray(cartsRes.data)) {
+          dispatch(setBasket(cartsRes.data.filter(c => c.card).map(c => ({...c.card, quantity: 1}))));
+        }
+        const likesRes = await api.get(`/likes/getLikes?user_id=${res.data.user.id}`);
+        if (likesRes.data && Array.isArray(likesRes.data)) {
+          dispatch(setLikes(likesRes.data.filter(l => l.card).map(l => l.card)));
+        }
+      } catch (e) { console.error(e); }
 
       Swal.fire({ title: t("login_success", "Muvaffaqiyatli kirildi!"), icon: "success", timer: 1500 });
       navigate("/");

@@ -9,6 +9,7 @@ const AdminNews = () => {
   const { t } = useTranslation();
   const [news, setNews] = useState([]);
   const [url, setUrl] = useState("");
+  const [description, setDescription] = useState("");
 
   const fetchNews = async () => {
     try {
@@ -24,9 +25,10 @@ const AdminNews = () => {
   const handleAdd = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/news/createNews", { url });
+      await api.post("/news/createNews", { url, description });
       Toast.fire({ icon: "success", title: t("added_successfully", "Qo'shildi") });
       setUrl("");
+      setDescription("");
       fetchNews();
     } catch (error) {
       const errMsg = error.response?.data?.error || error.response?.data?.message || t("add_error", "Qo'shishda xatolik");
@@ -57,17 +59,26 @@ const AdminNews = () => {
   };
 
   const handleEdit = async (item) => {
-    const { value: newUrl } = await Swal.fire({
-      title: t("edit_image", "Rasmni tahrirlash"),
-      input: "text",
-      inputValue: item.url,
+    const { value: formValues } = await Swal.fire({
+      title: t("edit_image", "Yangilikni tahrirlash"),
+      html: `
+        <input id="swal-input1" class="swal2-input" placeholder="Rasm URL" value="${item.url}">
+        <input id="swal-input2" class="swal2-input" placeholder="Tavsif" value="${item.description || ''}">
+      `,
+      focusConfirm: false,
+      preConfirm: () => {
+        return {
+          newUrl: document.getElementById('swal-input1').value,
+          newDescription: document.getElementById('swal-input2').value
+        }
+      },
       showCancelButton: true,
       confirmButtonText: t("save", "Saqlash"),
       cancelButtonText: t("cancel", "Bekor qilish")
     });
-    if (newUrl) {
+    if (formValues && formValues.newUrl) {
       try {
-        await api.put(`/news/updateNews/${item.id}`, { url: newUrl });
+        await api.put(`/news/updateNews/${item.id}`, { url: formValues.newUrl, description: formValues.newDescription });
         Toast.fire({ icon: "success", title: t("saved_successfully", "O'zgartirildi!") });
         fetchNews();
       } catch (error) {
@@ -81,18 +92,20 @@ const AdminNews = () => {
       <h2>Yangiliklar (Yangi kelganlar) Boshqaruvi</h2>
       <form onSubmit={handleAdd} className="admin-form">
         <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Rasm URL (https://...)" required />
+        <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Tavsif" />
         <button type="submit" className="red-btn">Qo'shish</button>
       </form>
       <div className="admin-table-container">
         <table className="admin-table">
           <thead>
-            <tr><th>ID</th><th>Rasm</th><th>Amallar</th></tr>
+            <tr><th>ID</th><th>Rasm</th><th>Tavsif</th><th>Amallar</th></tr>
           </thead>
           <tbody>
             {news.map(n => (
               <tr key={n.id}>
                 <td>{n.id}</td>
                 <td><img src={n.url} alt="news" style={{width: 60, height: 60, objectFit: "cover", borderRadius: "8px"}} /></td>
+                <td>{n.description}</td>
                 <td>
                   <div className="action-icons">
                     <button className="icon-btn edit" onClick={() => handleEdit(n)} title="Tahrirlash"><Edit size={18} /></button>

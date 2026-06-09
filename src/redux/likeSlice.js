@@ -16,8 +16,12 @@ export const likeSlice = createSlice({
       state.value = state.value.filter((item) => item.id !== action.payload);
       localStorage.setItem("like", JSON.stringify(state.value));
     },
+    setLikes: (state, action) => {
+      state.value = action.payload;
+      localStorage.setItem("like", JSON.stringify(state.value));
+    },
   },
 });
 
-export const { addLike, deleteLike } = likeSlice.actions;
+export const { addLike, deleteLike, setLikes } = likeSlice.actions;
 export default likeSlice.reducer;

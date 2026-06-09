@@ -38,10 +38,14 @@ export const basketSlice = createSlice({
         localStorage.setItem("basket", JSON.stringify(state.value));
       }
     },
+    setBasket: (state, action) => {
+      state.value = action.payload;
+      localStorage.setItem("basket", JSON.stringify(state.value));
+    },
   },
 });
 
-export const { addToBasket, deleteItem, incrementQuantity, decrementQuantity } =
+export const { addToBasket, deleteItem, incrementQuantity, decrementQuantity, setBasket } =
   basketSlice.actions;
 
 export default basketSlice.reducer;

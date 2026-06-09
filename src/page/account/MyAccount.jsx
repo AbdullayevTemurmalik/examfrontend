@@ -2,11 +2,15 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../../App';
 import { LogOut, HelpCircle, User, Shield } from 'lucide-react';
+import { useDispatch } from "react-redux";
+import { setBasket } from "../../redux/basketSlice";
+import { setLikes } from "../../redux/likeSlice";
 import './MyAccount.css';
 
 const MyAccount = () => {
   const { isDarkTheme, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
@@ -26,7 +30,11 @@ const MyAccount = () => {
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userData');
-    navigate('/register');
+    localStorage.removeItem('basket');
+    localStorage.removeItem('like');
+    dispatch(setBasket([]));
+    dispatch(setLikes([]));
+    navigate('/login');
   };
 
   return (

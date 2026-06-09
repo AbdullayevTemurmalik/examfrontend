@@ -8,10 +8,14 @@ import { Chrome, Eye, EyeOff } from "lucide-react";
 import api from "../../api/axios";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
+import { useDispatch } from "react-redux";
+import { setBasket } from "../../redux/basketSlice";
+import { setLikes } from "../../redux/likeSlice";
 
 const Registration = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [form, setForm] = useState({ firstName: "", lastName: "", userName: "", age: "", gender: "male", email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -49,9 +53,22 @@ const Registration = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
+      const fakeId = user.uid || Date.now().toString(); // Use a stable fake id for Google auth if backend isn't handling it
       localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userData", JSON.stringify({ email: user.email, userName: user.displayName }));
+      localStorage.setItem("userData", JSON.stringify({ id: fakeId, email: user.email, userName: user.displayName }));
       localStorage.setItem("role", "user");
+
+      try {
+        const cartsRes = await api.get(`/carts/getCarts?user_id=${fakeId}`);
+        if (cartsRes.data && Array.isArray(cartsRes.data)) {
+          dispatch(setBasket(cartsRes.data.filter(c => c.card).map(c => ({...c.card, quantity: 1}))));
+        }
+        const likesRes = await api.get(`/likes/getLikes?user_id=${fakeId}`);
+        if (likesRes.data && Array.isArray(likesRes.data)) {
+          dispatch(setLikes(likesRes.data.filter(l => l.card).map(l => l.card)));
+        }
+      } catch (e) { console.error(e); }
+
       Swal.fire({ title: t("success", "Muvaffaqiyatli"), icon: "success", timer: 1500 });
       navigate("/");
     } catch (error) {
